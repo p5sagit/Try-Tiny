@@ -11,7 +11,21 @@ our @EXPORT = our @EXPORT_OK = qw(try catch finally);
 use Carp;
 $Carp::Internal{+__PACKAGE__}++;
 
-BEGIN { eval "use Sub::Name; 1" or *{subname} = sub {1} }
+BEGIN {
+  my $su = $INC{'Sub/Util.pm'} && defined &Sub::Util::set_subname;
+  my $sn = $INC{'Sub/Name.pm'} && eval { Sub::Name->VERSION(0.08) };
+  unless ($su || $sn) {
+    $su = eval { require Sub::Util; } && defined &Sub::Util::set_subname;
+    unless ($su) {
+      $sn = eval { require Sub::Name; Sub::Name->VERSION(0.08) };
+    }
+  }
+
+  *_subname = $su ? \&Sub::Util::set_subname
+            : $sn ? \&Sub::Name::subname
+            : sub { $_[1] };
+  *_HAS_SUBNAME = ($su || $sn) ? sub(){1} : sub(){0};
+}
 
 # Need to prototype as @ not $$ because of the way Perl evaluates the prototype.
 # Keeping it at $$ means you only ever get 1 sub because we need to eval in a list
@@ -53,9 +67,8 @@ sub try (&;@) {
 
   # name the blocks if we have Sub::Name installed
   my $caller = caller;
-  subname("${caller}::try {...} " => $try);
-  subname("${caller}::catch {...} " => $catch) if $catch;
-  subname("${caller}::finally {...} " => $_) foreach @finally;
+  _subname("${caller}::try {...} " => $try)
+    if _HAS_SUBNAME;
 
   # save the value of $@ so we can set $@ back to it in the beginning of the eval
   # and restore $@ after the eval finishes
@@ -116,6 +129,9 @@ sub catch (&;@) {
 
   croak 'Useless bare catch()' unless wantarray;
 
+  my $caller = caller;
+  _subname("${caller}::catch {...} " => $block)
+    if _HAS_SUBNAME;
   return (
     bless(\$block, 'Try::Tiny::Catch'),
     @rest,
@@ -127,6 +143,9 @@ sub finally (&;@) {
 
   croak 'Useless bare finally()' unless wantarray;
 
+  my $caller = caller;
+  _subname("${caller}::finally {...} " => $block)
+    if _HAS_SUBNAME;
   return (
     bless(\$block, 'Try::Tiny::Finally'),
     @rest,

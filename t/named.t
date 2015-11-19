@@ -6,8 +6,9 @@ use warnings;
 use Test::More;
 
 BEGIN {
-    plan skip_all => "Sub::Name required"
-        unless eval { require Sub::Name; 1 };
+    plan skip_all => "Sub::Util or Sub::Name required"
+        unless eval { require Sub::Util; defined &Sub::Util::set_subname; }
+            || eval { require Sub::Name; Sub::Name->VERSION(0.08) };
     plan tests => 3;
 }
 
