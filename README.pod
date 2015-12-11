@@ -8,7 +8,7 @@ Try::Tiny - minimal try/catch with proper preservation of $@
 
 =head1 VERSION
 
-version 0.23
+version 0.24
 
 =head1 SYNOPSIS
 
@@ -503,17 +503,17 @@ Jesse Luehrs <doy@tozt.net>
 
 =head1 CONTRIBUTORS
 
-=for stopwords Peter Rabbitson Karen Etheridge Ricardo Signes Mark Fowler Graham Knop Dagfinn Ilmari Mannsåker Paul Howarth Rudolf Leermakers anaxagoras awalker chromatic Alex cm-perl Andrew Yates David Lowe Glenn Hans Dieter Pearcey Jonathan Yu Marc Mims Stosberg
+=for stopwords Karen Etheridge Peter Rabbitson Ricardo Signes Mark Fowler Graham Knop Dagfinn Ilmari Mannsåker Paul Howarth Rudolf Leermakers anaxagoras awalker chromatic Alex cm-perl Andrew Yates David Lowe Glenn Hans Dieter Pearcey Jonathan Yu Marc Mims Stosberg
 
 =over 4
 
 =item *
 
-Peter Rabbitson <ribasushi@cpan.org>
+Karen Etheridge <ether@cpan.org>
 
 =item *
 
-Karen Etheridge <ether@cpan.org>
+Peter Rabbitson <ribasushi@cpan.org>
 
 =item *
 
