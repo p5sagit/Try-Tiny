@@ -2,7 +2,7 @@ package Try::Tiny;
 use 5.006;
 # ABSTRACT: minimal try/catch with proper preservation of $@
 
-our $VERSION = '0.23';
+our $VERSION = '0.24';
 
 use strict;
 use warnings;

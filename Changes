@@ -1,5 +1,7 @@
 Revision history for Try-Tiny
 
+{{$NEXT}}
+
 0.23      2015-12-11 04:04:35Z
   - fix syntax of example code (Rudolf Leermakers, PR#22)
   - 'perl' removed from prerequisite recommendations, to avoid tripping up
