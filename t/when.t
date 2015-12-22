@@ -6,7 +6,7 @@ use warnings;
 use Test::More;
 
 BEGIN {
-  plan skip_all => "Perl 5.10 required" unless eval { require 5.010; 1 };
+  plan skip_all => 'Perl 5.010 is required' unless "$]" >= '5.010';
   plan tests => 5;
 }
 
