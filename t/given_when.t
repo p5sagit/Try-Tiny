@@ -6,13 +6,12 @@ use warnings;
 use Test::More;
 
 BEGIN {
-  plan skip_all => "Perl 5.10 is required" unless eval { require 5.010 };
+  plan skip_all => "Perl 5.10 is required" unless eval 'use 5.010';
   plan tests => 2;
 }
 
 use Try::Tiny;
 
-use 5.010;
 no if $] >= 5.017011, warnings => 'experimental::smartmatch';
 
 my ( $error, $topic );
