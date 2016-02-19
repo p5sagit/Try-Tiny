@@ -18,14 +18,14 @@ use Try::Tiny;
   package WithFinally;
   use Try::Tiny;
 
+  our $_in_destroy;
   sub DESTROY {
+    local $_in_destroy = 1;
     try {}
     finally {};
     return;
   }
 }
-
-my $parent = $$;
 
 try {
   my $pid = fork;
@@ -52,6 +52,6 @@ try {
   waitpid $pid, 0;
   is $?, 0, 'nested try in cleanup after fork does not maintain outer finally block';
 }
-finally { exit 1 if $parent != $$ };
+finally { exit 1 if $WithFinally::_in_destroy };
 
 pass("Didn't just exit");
