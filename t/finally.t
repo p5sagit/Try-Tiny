@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 27;
+use Test::More tests => 30;
 
 use Try::Tiny;
 
@@ -128,4 +128,16 @@ is($_, "foo", "same afterwards");
   like $originals[1], qr/fin 3 at/, 'Second warning contains original exception';
 }
 
-1;
+{
+  my $finally;
+  SKIP: {
+    try {
+      pass('before skip in try');
+      skip 'whee', 1;
+      fail('not reached');
+    } finally {
+      $finally = 1;
+    };
+  }
+  ok $finally, 'finally ran';
+}
