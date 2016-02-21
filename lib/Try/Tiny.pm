@@ -29,6 +29,8 @@ BEGIN {
   *_HAS_SUBNAME = ($su || $sn) ? sub(){1} : sub(){0};
 }
 
+my @_finally_guards;
+
 # Need to prototype as @ not $$ because of the way Perl evaluates the prototype.
 # Keeping it at $$ means you only ever get 1 sub because we need to eval in a list
 # context & not a scalar one
@@ -72,6 +74,15 @@ sub try (&;@) {
   _subname("${caller}::try {...} " => $try)
     if _HAS_SUBNAME;
 
+  # set up scope guards to invoke the finally blocks at the end.
+  # this should really be a function scope lexical variable instead of
+  # file scope + local but that causes issues with perls < 5.20 due to
+  # perl rt#119311
+  local $_finally_guards[0] = [
+    map { Try::Tiny::ScopeGuard->_new($_) }
+    @finally
+  ];
+
   # save the value of $@ so we can set $@ back to it in the beginning of the eval
   # and restore $@ after the eval finishes
   my $prev_error = $@;
@@ -99,14 +110,12 @@ sub try (&;@) {
   $error = $@;
   $@ = $prev_error;
 
-  # set up a scope guard to invoke the finally block at the end
-  my @guards =
-    map { Try::Tiny::ScopeGuard->_new($_, $failed ? $error : ()) }
-    @finally;
-
   # at this point $failed contains a true value if the eval died, even if some
   # destructor overwrote $@ as the eval was unwinding.
   if ( $failed ) {
+    # pass $error to the finally blocks
+    push @$_, $error for @{$_finally_guards[0]};
+
     # if we got an error, invoke the catch block.
     if ( $catch ) {
       # This works like given($error), but is backwards compatible and
