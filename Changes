@@ -1,6 +1,6 @@
 Revision history for Try-Tiny
 
-{{$NEXT}}
+0.25      2016-02-22 20:16:51Z (TRIAL RELEASE)
   - "finally" blocks are now run for all methods of leaving the try block
     (including via exit, goto)  (mauke, RT#112099)
 
