@@ -1,6 +1,9 @@
 Revision history for Try-Tiny
 
 {{$NEXT}}
+  - switch from finalizers using an array to a hash, to resolve segfaults when
+    creating a pseudofork on MSWin before perl 5.20 (Graham Knop,
+    karenetheridge/Sub-Name/#3)
 
 0.25      2016-02-22 20:16:51Z (TRIAL RELEASE)
   - "finally" blocks are now run for all methods of leaving the try block
