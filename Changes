@@ -7,7 +7,7 @@ Revision history for Try-Tiny
 
 0.25      2016-02-22 20:16:51Z (TRIAL RELEASE)
   - "finally" blocks are now run for all methods of leaving the try block
-    (including via exit, goto)  (mauke, RT#112099)
+    (including via exit, goto)  (Lukas Mai, RT#112099)
 
 0.24      2015-12-11 05:20:09Z
   - fix prereq errors in 0.23
@@ -26,11 +26,11 @@ Revision history for Try-Tiny
   - also skip the test if Capture::Tiny is too old (Martin Popel, #17)
 
 0.20  2014-03-21
-  - documentation updates (Flimm, #15)
+  - documentation updates (David Lowe (Flimm), #15)
 
 0.19  2014-01-22
   - fix an obscure issue with loading modules during global destruction
-    (ilmari, #11)
+    (Dagfinn Ilmari Mannsåker, #11)
   - documentation updates (anaxagoras, #12)
 
 0.18  2013-08-17
