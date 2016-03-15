@@ -29,7 +29,7 @@ BEGIN {
   *_HAS_SUBNAME = ($su || $sn) ? sub(){1} : sub(){0};
 }
 
-my @_finally_guards;
+my %_finally_guards;
 
 # Need to prototype as @ not $$ because of the way Perl evaluates the prototype.
 # Keeping it at $$ means you only ever get 1 sub because we need to eval in a list
@@ -78,7 +78,7 @@ sub try (&;@) {
   # this should really be a function scope lexical variable instead of
   # file scope + local but that causes issues with perls < 5.20 due to
   # perl rt#119311
-  local $_finally_guards[0] = [
+  local $_finally_guards{guards} = [
     map { Try::Tiny::ScopeGuard->_new($_) }
     @finally
   ];
@@ -114,7 +114,7 @@ sub try (&;@) {
   # destructor overwrote $@ as the eval was unwinding.
   if ( $failed ) {
     # pass $error to the finally blocks
-    push @$_, $error for @{$_finally_guards[0]};
+    push @$_, $error for @{$_finally_guards{guards}};
 
     # if we got an error, invoke the catch block.
     if ( $catch ) {
