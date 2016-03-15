@@ -13,32 +13,34 @@ Revision history for Try-Tiny
   - fix prereq errors in 0.23
 
 0.23      2015-12-11 04:04:35Z
-  - fix syntax of example code (Rudolf Leermakers, PR#22)
+  - fix syntax of example code (Rudolf Leermakers, doy/Sub-Name/#22)
   - 'perl' removed from prerequisite recommendations, to avoid tripping up
     CPAN clients (Graham Knop)
   - Sub::Util is used preferentially to Sub::Name in most cases (Graham Knop,
-    PR#27)
+    doy/Sub-Name/#27)
 
 0.22  2014-04-29
-  - add optional test deps as recommended prereqs (Karen Etheridge, #18)
+  - add optional test deps as recommended prereqs (Karen Etheridge,
+    doy/Sub-Name/#18)
 
 0.21  2014-04-15
-  - also skip the test if Capture::Tiny is too old (Martin Popel, #17)
+  - also skip the test if Capture::Tiny is too old (Martin Popel,
+    doy/Sub-Name/#17)
 
 0.20  2014-03-21
-  - documentation updates (David Lowe (Flimm), #15)
+  - documentation updates (David Lowe (Flimm), doy/Sub-Name/#15)
 
 0.19  2014-01-22
   - fix an obscure issue with loading modules during global destruction
-    (Dagfinn Ilmari Mannsåker, #11)
-  - documentation updates (anaxagoras, #12)
+    (Dagfinn Ilmari Mannsåker, doy/Sub-Name/#11)
+  - documentation updates (anaxagoras, doy/Sub-Name/#12)
 
 0.18  2013-08-17
-  - fix tests for pre-Test-More-0.88 (Paul Howarth, #10)
+  - fix tests for pre-Test-More-0.88 (Paul Howarth, doy/Sub-Name/#10)
 
 0.17  2013-08-16
   - work around [rt.perl #119311] which was causing incorrect error messages in
-    some cases during global destruction (Graham Knop, #9)
+    some cases during global destruction (Graham Knop, doy/Sub-Name/#9)
 
 0.16  2013-07-10
   - remove accidental Sub::Name test dep
