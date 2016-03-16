@@ -1,6 +1,8 @@
 Revision history for Try-Tiny
 
 {{$NEXT}}
+  - repository moved to the github p5sagit organization (the primary is on
+    shadowcat, mirrored to github)
 
 0.26      2016-03-15 23:42:02Z (TRIAL RELEASE)
   - switch from finalizers using an array to a hash, to resolve segfaults when
