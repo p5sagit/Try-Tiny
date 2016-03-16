@@ -668,9 +668,4 @@ Or read the source:
 
 L<http://web.archive.org/web/20100305133605/http://nothingmuch.woobling.org/talks/yapc_asia_2009/try_tiny.yml>
 
-=head1 VERSION CONTROL
-
-L<http://github.com/doy/try-tiny/>
-
 =cut
-
