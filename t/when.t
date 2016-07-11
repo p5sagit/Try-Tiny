@@ -11,7 +11,7 @@ BEGIN {
 use Try::Tiny;
 
 use 5.010;
-no if $] >= 5.017011, warnings => 'experimental::smartmatch';
+no if "$]" >= 5.017011, warnings => 'experimental::smartmatch';
 
 my ( $foo, $bar, $other );
 

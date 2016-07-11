@@ -167,7 +167,7 @@ sub finally (&;@) {
   package # hide from PAUSE
     Try::Tiny::ScopeGuard;
 
-  use constant UNSTABLE_DOLLARAT => ($] < '5.013002') ? 1 : 0;
+  use constant UNSTABLE_DOLLARAT => ("$]" < '5.013002') ? 1 : 0;
 
   sub _new {
     shift;

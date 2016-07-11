@@ -11,7 +11,7 @@ BEGIN {
 use Try::Tiny;
 
 use 5.010;
-no if $] >= 5.017011, warnings => 'experimental::smartmatch';
+no if "$]" >= 5.017011, warnings => 'experimental::smartmatch';
 
 my ( $error, $topic );
 
@@ -30,7 +30,7 @@ is( $error, "blah\n", "error caught" );
 
 {
   local $TODO = "perhaps a workaround can be found"
-    if $] < 5.017003;
+    if "$]" < 5.017003;
   is( $topic, $error, 'error is also in $_' );
 }
 

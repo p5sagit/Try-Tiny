@@ -131,7 +131,7 @@ sub Evil::new { bless { }, $_[0] }
     die "foo";
   } catch {
     pass("catch invoked");
-    local $TODO = "i don't think we can ever make this work sanely, maybe with SIG{__DIE__}" if $] < 5.014;
+    local $TODO = "i don't think we can ever make this work sanely, maybe with SIG{__DIE__}" if "$]" < 5.014;
     like($_, qr/foo/);
   };
 
