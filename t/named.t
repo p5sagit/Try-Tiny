@@ -33,4 +33,3 @@ try {
     $name = (caller(0))[3];
 };
 is $name, "main::finally {...} ", "finally name"; # note extra space
-

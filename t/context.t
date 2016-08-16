@@ -2,7 +2,6 @@ use strict;
 use warnings;
 
 use Test::More;
-
 use Try::Tiny;
 
 plan tests =>

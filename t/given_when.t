@@ -35,4 +35,3 @@ is( $error, "blah\n", "error caught" );
 }
 
 # ex: set sw=4 et:
-
