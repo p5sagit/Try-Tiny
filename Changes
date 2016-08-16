@@ -1,6 +1,6 @@
 Revision history for Try-Tiny
 
-{{$NEXT}}
+0.27      2016-08-16 01:43:35Z
   - repository moved to the github p5sagit organization (the primary is on
     shadowcat, mirrored to github)
   - no changes since 0.26
