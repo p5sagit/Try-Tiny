@@ -1,6 +1,6 @@
 package Try::Tiny;
 use 5.006;
-# ABSTRACT: minimal try/catch with proper preservation of $@
+# ABSTRACT: Minimal try/catch with proper preservation of $@
 
 our $VERSION = '0.28';
 
