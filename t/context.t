@@ -52,19 +52,11 @@ sub run {
     return 'catch';
   }
   finally {
-    SKIP: {
-      skip "DESTROY() not called in void context on perl $]", 1
-        if "$]" < '5.008';
-      is (wantarray, undef, "Proper VOID context in finally{} 1");
-    }
+    is (wantarray, undef, "Proper VOID context in finally{} 1");
     return 'finally';
   }
   finally {
-    SKIP: {
-      skip "DESTROY() not called in void context on perl $]", 1
-        if "$]" < '5.008';
-      is (wantarray, undef, "Proper VOID context in finally{} 2");
-    }
+    is (wantarray, undef, "Proper VOID context in finally{} 2");
     return 'finally';
   };
 }
