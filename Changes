@@ -1,6 +1,8 @@
 Revision history for Try-Tiny
 
 {{$NEXT}}
+  - enabled some tests of finally blocks that were disabled on 5.6, now that
+    that functionality works (since 0.13) (Pali, PR#4)
 
 0.27      2016-08-16 01:43:35Z
   - repository moved to the github p5sagit organization (the primary is on
