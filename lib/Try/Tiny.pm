@@ -633,6 +633,10 @@ is unclear whether the new version 18 behavior is final.
 Much more feature complete, more convenient semantics, but at the cost of
 implementation complexity.
 
+=item L<Try::Catch>
+
+Much faster re-implementation of C<Try::Tiny> without C<finally> support.
+
 =item L<autodie>
 
 Automatic error throwing for builtin functions and more. Also designed to
