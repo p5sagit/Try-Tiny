@@ -70,8 +70,7 @@ sub try (&;@) {
   # $catch->();
 
   # name the blocks if we have Sub::Name installed
-  my $caller = caller;
-  _subname("${caller}::try {...} " => $try)
+  _subname(caller.'::try {...} ' => $try)
     if _HAS_SUBNAME;
 
   # set up scope guards to invoke the finally blocks at the end.
@@ -140,8 +139,7 @@ sub catch (&;@) {
 
   croak 'Useless bare catch()' unless wantarray;
 
-  my $caller = caller;
-  _subname("${caller}::catch {...} " => $block)
+  _subname(caller.'::catch {...} ' => $block)
     if _HAS_SUBNAME;
   return (
     bless(\$block, 'Try::Tiny::Catch'),
@@ -154,8 +152,7 @@ sub finally (&;@) {
 
   croak 'Useless bare finally()' unless wantarray;
 
-  my $caller = caller;
-  _subname("${caller}::finally {...} " => $block)
+  _subname(caller.'::finally {...} ' => $block)
     if _HAS_SUBNAME;
   return (
     bless(\$block, 'Try::Tiny::Finally'),
