@@ -430,7 +430,7 @@ because due to the previous caveats it may have been unset.
 C<$@> could also be an overloaded error object that evaluates to false, but
 that's asking for trouble anyway.
 
-The classic failure mode is:
+The classic failure mode (fixed in L<Perl 5.14.0|http://perldoc.perl.org/perl5140delta.html#Exception-Handling>) is:
 
   sub Object::DESTROY {
     eval { ... }
