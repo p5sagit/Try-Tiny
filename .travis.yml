@@ -1,17 +1,33 @@
+sudo: false
 language: perl
 perl:
-    - "5.26"
-    - "5.24"
-    - "5.22"
-    - "5.20"
-    - "5.18"
-    - "5.16"
-    - "5.14"
-    - "5.12"
-    - "5.10"
+  - blead       # builds perl from git
+  - dev         # latest point release
+  - "5.26"
+  - "5.24"
+  - "5.22"
+  - "5.20"
+  - "5.18"
+  - "5.16"
+  - "5.14"
+  - "5.12"
+  - "5.10"
+  - "5.8"
+env:
+  global:
+    - AUTHOR_TESTING=1
+    - AUTOMATED_TESTING=1
+    - RELEASE_TESTING=0
+before_install:
+  - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
+  - source ~/travis-perl-helpers/init
+  - build-perl
+  - perl -V
+  - build-dist
+  - cd $BUILD_DIR
 install:
-    - cpanm -q --notest Dist::Zilla || (cat /home/travis/.cpanm/build.log; false)
-    - dzil authordeps --missing | cpanm -q --notest || (cat /home/travis/.cpanm/build.log; false)
-    - dzil listdeps --author --missing | cpanm -q --notest || (cat /home/travis/.cpanm/build.log; false)
+  - cpan-install --deps
 script:
-    - dzil test --all
+  - perl Makefile.PL
+  - make
+  - prove -b -r -s -j1 $(test-files)
