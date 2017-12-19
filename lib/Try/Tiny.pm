@@ -466,9 +466,11 @@ be sure the C<eval> was aborted due to an error:
 This is because an C<eval> that caught a C<die> will always return a false
 value.
 
-=head1 SHINY SYNTAX
+=head1 ALTERNATE SYNTAX
 
-Using Perl 5.10 you can use L<perlsyn/"Switch statements">.
+Using Perl 5.10 you can use L<perlsyn/"Switch statements"> (but please don't,
+because that syntax has since been deprecated because there was too much
+unexpected magical behaviour).
 
 =for stopwords topicalizer
 
@@ -613,8 +615,8 @@ confusing behavior:
     }
   }
 
-Note that this behavior was changed once again in L<Perl5 version 18
-|https://metacpan.org/module/perldelta#given-now-aliases-the-global-_>.
+Note that this behavior was changed once again in
+L<Perl5 version 18|https://metacpan.org/module/perldelta#given-now-aliases-the-global-_>.
 However, since the entirety of lexical C<$_> is now L<considered experimental
 |https://metacpan.org/module/perldelta#Lexical-_-is-now-experimental>, it
 is unclear whether the new version 18 behavior is final.
