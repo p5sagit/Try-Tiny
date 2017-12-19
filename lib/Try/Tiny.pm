@@ -386,8 +386,8 @@ not yet handled.
 C<$@> must be properly localized before invoking C<eval> in order to avoid this
 issue.
 
-More specifically, C<$@> is clobbered at the beginning of the C<eval>, which
-also makes it impossible to capture the previous error before you die (for
+More specifically, L<before Perl version 5.14.0|http://perldoc.perl.org/perl5140delta.html#Exception-Handling> C<$@> was clobbered at the beginning of the C<eval>, which
+also made it impossible to capture the previous error before you die (for
 instance when making exception objects with error stacks).
 
 For this reason C<try> will actually set C<$@> to its previous value (the one
@@ -430,7 +430,7 @@ because due to the previous caveats it may have been unset.
 C<$@> could also be an overloaded error object that evaluates to false, but
 that's asking for trouble anyway.
 
-The classic failure mode is:
+The classic failure mode (fixed in L<Perl 5.14.0|http://perldoc.perl.org/perl5140delta.html#Exception-Handling>) is:
 
   sub Object::DESTROY {
     eval { ... }
