@@ -8,7 +8,7 @@ Try::Tiny - Minimal try/catch with proper preservation of $@
 
 =head1 VERSION
 
-version 0.29
+version 0.30
 
 =head1 SYNOPSIS
 
