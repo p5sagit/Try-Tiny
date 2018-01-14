@@ -120,7 +120,28 @@ sub try (&;@) {
       # This works like given($error), but is backwards compatible and
       # sets $_ in the dynamic scope for the body of C<$catch>
       for ($error) {
-        return $catch->($error);
+        my $failed = not eval {
+          $@ = $prev_error;
+          if ( $wantarray ) {
+            @ret = $catch->($error);
+          } elsif ( defined $wantarray ) {
+            $ret[0] = $catch->($error);
+          } else {
+            $catch->($error);
+          };
+          return 1;
+        };
+        $error = $@;
+        $@ = $prev_error;
+        if ( $failed ) {
+          die $error;
+        } elsif ( $wantarray ) {
+          return @ret;
+        } elsif ( defined $wantarray ) {
+          return $ret[0];
+        } else {
+          return;
+        };
       }
 
       # in case when() was used without an explicit return, the C<for>
