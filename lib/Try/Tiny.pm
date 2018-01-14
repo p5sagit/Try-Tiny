@@ -86,12 +86,31 @@ sub try (&;@) {
   # and restore $@ after the eval finishes
   my $prev_error = $@;
 
-  my ( @ret, $error );
+  my ( @ret, $error, $sig_error );
 
   # failed will be true if the eval dies, because 1 will not be returned
   # from the eval body
   my $failed = not eval {
     $@ = $prev_error;
+
+    my $sig_die = $SIG{__DIE__};
+    $sig_die = undef unless ref $sig_die eq 'CODE';
+
+    my $sig_die_called;
+    local $SIG{__DIE__} = sub {
+      return if $sig_die_called;
+      $sig_die_called = 1;
+      $sig_error = $_[0];
+      if (defined $sig_die) {
+        eval {
+          local $SIG{__DIE__} = $sig_die;
+          die $sig_error;
+        };
+        my $new_error = $@;
+        $sig_error = $new_error if defined $new_error and (ref $new_error ne '' or length $new_error);
+      }
+      die $sig_error;
+    };
 
     # evaluate the try block in the correct context
     if ( $wantarray ) {
@@ -107,6 +126,7 @@ sub try (&;@) {
 
   # preserve the current error and reset the original value of $@
   $error = $@;
+  $error = $sig_error if $failed and defined $sig_error and (ref $sig_error ne '' or length $sig_error);
   $@ = $prev_error;
 
   # at this point $failed contains a true value if the eval died, even if some
