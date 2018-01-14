@@ -16,19 +16,28 @@ $Carp::Internal{+__PACKAGE__}++;
 BEGIN {
   my $su = $INC{'Sub/Util.pm'} && defined &Sub::Util::set_subname;
   my $sn = $INC{'Sub/Name.pm'} && eval { Sub::Name->VERSION(0.08) };
+  my $sc = $INC{'Scope/Cleanup.pm'};
   unless ($su || $sn) {
     $su = eval { require Sub::Util; } && defined &Sub::Util::set_subname;
     unless ($su) {
       $sn = eval { require Sub::Name; Sub::Name->VERSION(0.08) };
     }
   }
+  unless ($sc) {
+    $sc = eval { require Scope::Cleanup };
+  }
+  if ($sc) {
+    Scope::Cleanup->import('establish_cleanup');
+  }
 
   *_subname = $su ? \&Sub::Util::set_subname
             : $sn ? \&Sub::Name::subname
             : sub { $_[1] };
   *_HAS_SUBNAME = ($su || $sn) ? sub(){1} : sub(){0};
+  *_HAS_SCOPE_CLEANUP = $sc ? sub(){1} : sub(){0};
 }
 
+my %_scope_cleanup;
 my %_finally_guards;
 
 # Need to prototype as @ not $$ because of the way Perl evaluates the prototype.
@@ -73,6 +82,21 @@ sub try (&;@) {
   _subname(caller().'::try {...} ' => $try)
     if _HAS_SUBNAME;
 
+  # set up scope cleanup to invoke the finally blocks at the end.
+  # this would call all finally blocks and the last exception would
+  # be propagated to the caller thanks to Scope::Cleanup module.
+  local $_scope_cleanup{args} = [] if _HAS_SCOPE_CLEANUP;
+  local $_scope_cleanup{finally} = [ @finally ] if _HAS_SCOPE_CLEANUP;
+  local $_scope_cleanup{sub} if _HAS_SCOPE_CLEANUP;
+  $_scope_cleanup{sub} = sub {
+    return unless @{$_scope_cleanup{finally}};
+    establish_cleanup($_scope_cleanup{sub});
+    my $code = pop(@{$_scope_cleanup{finally}});
+    $code->(@{$_scope_cleanup{args}});
+    return;
+  } if _HAS_SCOPE_CLEANUP;
+  establish_cleanup($_scope_cleanup{sub}) if _HAS_SCOPE_CLEANUP;
+
   # set up scope guards to invoke the finally blocks at the end.
   # this should really be a function scope lexical variable instead of
   # file scope + local but that causes issues with perls < 5.20 due to
@@ -80,7 +104,7 @@ sub try (&;@) {
   local $_finally_guards{guards} = [
     map { Try::Tiny::ScopeGuard->_new($_) }
     @finally
-  ];
+  ] unless _HAS_SCOPE_CLEANUP;
 
   # save the value of $@ so we can set $@ back to it in the beginning of the eval
   # and restore $@ after the eval finishes
@@ -112,8 +136,12 @@ sub try (&;@) {
   # at this point $failed contains a true value if the eval died, even if some
   # destructor overwrote $@ as the eval was unwinding.
   if ( $failed ) {
+    $_scope_cleanup{args} = [ $error ]
+      if _HAS_SCOPE_CLEANUP;
+
     # pass $error to the finally blocks
-    push @$_, $error for @{$_finally_guards{guards}};
+    do { push @$_, $error for @{$_finally_guards{guards}} }
+      unless _HAS_SCOPE_CLEANUP;
 
     # if we got an error, invoke the catch block.
     if ( $catch ) {
@@ -181,7 +209,7 @@ sub finally (&;@) {
     } or do {
       warn
         "Execution of finally() block $code resulted in an exception, which "
-      . '*CAN NOT BE PROPAGATED* due to fundamental limitations of Perl. '
+      . '*CAN NOT BE PROPAGATED* because Scope::Cleanup is not installed. '
       . 'Your program will continue as if this event never took place. '
       . "Original exception text follows:\n\n"
       . (defined $@ ? $@ : '$@ left undefined...')
@@ -361,10 +389,8 @@ B<You must always do your own error handling in the C<finally> block>. C<Try::Ti
 not do anything about handling possible errors coming from code located in these
 blocks.
 
-Furthermore B<exceptions in C<finally> blocks are not trappable and are unable
-to influence the execution of your program>. This is due to limitation of
-C<DESTROY>-based scope guards, which C<finally> is implemented on top of. This
-may change in a future version of Try::Tiny.
+Furthermore B<exceptions in C<finally> blocks are trappable only if module
+L<Scope::Cleanup> is available>.
 
 In the same way C<catch()> blesses the code reference this subroutine does the same
 except it bless them as C<Try::Tiny::Finally>.
