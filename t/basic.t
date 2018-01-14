@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 25;
+use Test::More tests => 36;
 use Try::Tiny;
 
 sub _eval {
@@ -137,6 +137,93 @@ sub Evil::new { bless { }, $_[0] }
   is( $@, "magic", '$@ untouched' );
   is( $_, "other magic", '$_ untouched' );
 }
+
+sub Evil2::DESTROY {
+  $@ = "oh noes";
+}
+
+sub Evil2::new { bless { }, $_[0] }
+
+{
+  local $@ = "magic";
+  local $_ = "other magic";
+
+  try {
+    my $object = Evil2->new;
+  } catch {
+    fail("shouldn't happen");
+  };
+
+  is( $@, "magic", '$@ untouched' );
+  is( $_, "other magic", '$_ untouched' );
+}
+
+sub evil_sub {
+  $@ = "another magic";
+}
+
+{
+  local $@ = "magic";
+  local $_ = "other magic";
+
+  try {
+    my $object = Evil2->new;
+  } catch {
+    fail("shouldn't happen");
+  } finally {
+    evil_sub;
+  };
+
+  is( $@, "magic", '$@ untouched' );
+  is( $_, "other magic", '$_ untouched' );
+}
+
+{
+  local $@ = "magic";
+  local $_ = "other magic";
+
+  try {
+    1;
+  } catch {
+    fail("shouldn't happen");
+  } finally {
+    evil_sub;
+  };
+
+  is( $@, "magic", '$@ untouched' );
+  is( $_, "other magic", '$_ untouched' );
+}
+
+{
+  local $@ = "magic";
+  local $_ = "other magic";
+
+  try {
+    evil_sub;
+  } catch {
+    fail("shouldn't happen");
+  };
+
+  is( $@, "magic", '$@ untouched' );
+  is( $_, "other magic", '$_ untouched' );
+}
+
+{
+  local $@ = "magic";
+  local $_ = "other magic";
+
+  try {
+    die;
+  } catch {
+    pass("catch invoked");
+    evil_sub;
+  };
+
+  is( $@, "magic", '$@ untouched' );
+  is( $_, "other magic", '$_ untouched' );
+}
+
+
 
 {
   my ( $caught, $prev );

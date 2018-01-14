@@ -164,8 +164,6 @@ sub finally (&;@) {
   package # hide from PAUSE
     Try::Tiny::ScopeGuard;
 
-  use constant UNSTABLE_DOLLARAT => ("$]" < '5.013002') ? 1 : 0;
-
   sub _new {
     shift;
     bless [ @_ ];
@@ -174,7 +172,7 @@ sub finally (&;@) {
   sub DESTROY {
     my ($code, @args) = @{ $_[0] };
 
-    local $@ if UNSTABLE_DOLLARAT;
+    local $@;
     eval {
       $code->(@args);
       1;
