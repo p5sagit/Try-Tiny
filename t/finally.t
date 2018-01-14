@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 30;
+use Test::More tests => 35;
 use Try::Tiny;
 
 try {
@@ -107,22 +107,47 @@ is($_, "foo", "same afterwards");
       : warn @_
   };
 
+  my $error;
+  my @order;
   try {
-    die 'tring'
-  } finally {
-    die 'fin 1'
-  } finally {
-    pass('fin 2 called')
-  } finally {
-    die 'fin 3'
+    try {
+      push @order, 1;
+      pass('try called');
+      die 'trying';
+    } finally {
+      push @order, 2;
+      pass('fin 1 called');
+      die 'fin 1'
+    } finally {
+      push @order, 3;
+      pass('fin 2 called')
+    } finally {
+      push @order, 4;
+      pass('fin 3 called');
+      die 'fin 3';
+    };
+  } catch {
+    $error = $_;
   };
 
-  is( scalar @warnings, 2, 'warnings from both fatal finally blocks' );
+  is( "@order", '1 4 3 2', 'try and finally blocks were called in correct order');
 
-  my @originals = sort map { $_ =~ /Original exception text follows:\n\n(.+)/s } @warnings;
+  # If Scope::Cleanup is available then exception from the last block would be propagated
+  if (eval { require Scope::Cleanup; Scope::Cleanup->import('establish_cleanup'); 1; }) {
+    is( scalar @warnings, 0, 'no warnings from fatal finally blocks (Scope::Cleanup is available)' ) or diag("warnings:\n" . join "\n", @warnings);
+    like $error, qr/^fin 1 at /, 'Exception from the first finally block was propagated (Scope::Cleanup is available)';
+    pass 'dummy test to fill plan (Scope::Cleanup is available)';
+    pass 'dummy test to fill plan (Scope::Cleanup is available)';
+  } else {
+    is( scalar @warnings, 2, 'warnings from both fatal finally blocks (Scope::Cleanup is not available)' );
 
-  like $originals[0], qr/fin 1 at/, 'First warning contains original exception';
-  like $originals[1], qr/fin 3 at/, 'Second warning contains original exception';
+    my @originals = sort map { $_ =~ /Original exception text follows:\n\n(.+)/s } @warnings;
+
+    like $originals[0], qr/^fin 1 at /, 'First warning contains original exception (Scope::Cleanup is not available)';
+    like $originals[1], qr/^fin 3 at /, 'Second warning contains original exception (Scope::Cleanup is not available)';
+    is $error, undef, 'No exception was propagated  (Scope::Cleanup is not available)';
+  }
+
 }
 
 {
