@@ -78,7 +78,7 @@ sub try (&;@) {
   # file scope + local but that causes issues with perls < 5.20 due to
   # perl rt#119311
   local $_finally_guards{guards} = [
-    map { Try::Tiny::ScopeGuard->_new($_) }
+    map Try::Tiny::ScopeGuard->_new($_),
     @finally
   ];
 
