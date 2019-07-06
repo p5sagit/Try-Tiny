@@ -263,7 +263,7 @@ Note that adding a C<finally> block without a preceding C<catch> block
 suppresses any errors. This behaviour is consistent with using a standalone
 C<eval>, but it is not consistent with C<try>/C<finally> patterns found in
 other programming languages, such as Java, Python, Javascript or C#. If you
-learnt the C<try>/C<finally> pattern from one of these languages, watch out for
+learned the C<try>/C<finally> pattern from one of these languages, watch out for
 this.
 
 =head1 EXPORTS
