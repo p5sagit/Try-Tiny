@@ -629,6 +629,13 @@ is unclear whether the new version 18 behavior is final.
 
 =over 4
 
+=item L<Syntax::Keyword::Try>
+
+Only available on perls >= 5.14, with a slightly different syntax (e.g. no trailing C<;> because
+it's actually a keyword, not a sub, but this means you can C<return> and C<next> within it). Use
+L<Feature::Compat::Try> to automatically switch to the native C<try> syntax in newer perls (when
+available). See also L<Try Catch Exception Handling|perlsyn/Try-Catch-Exception-Handling>.
+
 =item L<TryCatch>
 
 Much more feature complete, more convenient semantics, but at the cost of
