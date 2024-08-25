@@ -120,7 +120,28 @@ sub try (&;@) {
       # This works like given($error), but is backwards compatible and
       # sets $_ in the dynamic scope for the body of C<$catch>
       for ($error) {
-        return $catch->($error);
+        my $failed = not eval {
+          $@ = $prev_error;
+          if ( $wantarray ) {
+            @ret = $catch->($error);
+          } elsif ( defined $wantarray ) {
+            $ret[0] = $catch->($error);
+          } else {
+            $catch->($error);
+          };
+          return 1;
+        };
+        $error = $@;
+        $@ = $prev_error;
+        if ( $failed ) {
+          die $error;
+        } elsif ( $wantarray ) {
+          return @ret;
+        } elsif ( defined $wantarray ) {
+          return $ret[0];
+        } else {
+          return;
+        };
       }
 
       # in case when() was used without an explicit return, the C<for>
@@ -164,8 +185,6 @@ sub finally (&;@) {
   package # hide from PAUSE
     Try::Tiny::ScopeGuard;
 
-  use constant UNSTABLE_DOLLARAT => ("$]" < '5.013002') ? 1 : 0;
-
   sub _new {
     shift;
     bless [ @_ ];
@@ -174,7 +193,7 @@ sub finally (&;@) {
   sub DESTROY {
     my ($code, @args) = @{ $_[0] };
 
-    local $@ if UNSTABLE_DOLLARAT;
+    local $@;
     eval {
       $code->(@args);
       1;
@@ -454,6 +473,27 @@ C<eval>, it will set C<$@> to C<"">.
 The destructor is called when the stack is unwound, after C<die> sets C<$@> to
 C<"foo at Foo.pm line 42\n">, so by the time C<if ( $@ )> is evaluated it has
 been cleared by C<eval> in the destructor.
+
+=head2 $@ might be a true value when eval succeeded
+
+Similar as in above example. It is possible to manually set C<$@> value and if
+it happens when the stack is unwound it propagate false information back to
+caller.
+
+  sub Object::DESTROY {
+    $@ = "some string";
+  }
+
+  eval {
+    my $obj = Object->new;
+  };
+
+  if ( $@ ) {
+
+  }
+
+In this case after C<eval> the value in C<$@> is set to C<"some string"> and
+evaluated to true. Even C<eval> itself succeeded.
 
 The workaround for this is even uglier than the previous ones. Even though we
 can't save the value of C<$@> from code that doesn't localize, we can at least

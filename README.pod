@@ -268,6 +268,27 @@ The destructor is called when the stack is unwound, after C<die> sets C<$@> to
 C<"foo at Foo.pm line 42\n">, so by the time C<if ( $@ )> is evaluated it has
 been cleared by C<eval> in the destructor.
 
+=head2 $@ might be a true value when eval succeeded
+
+Similar as in above example. It is possible to manually set C<$@> value and if
+it happens when the stack is unwound it propagate false information back to
+caller.
+
+  sub Object::DESTROY {
+    $@ = "some string";
+  }
+
+  eval {
+    my $obj = Object->new;
+  };
+
+  if ( $@ ) {
+
+  }
+
+In this case after C<eval> the value in C<$@> is set to C<"some string"> and
+evaluated to true. Even C<eval> itself succeeded.
+
 The workaround for this is even uglier than the previous ones. Even though we
 can't save the value of C<$@> from code that doesn't localize, we can at least
 be sure the C<eval> was aborted due to an error:
