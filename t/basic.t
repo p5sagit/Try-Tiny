@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 25;
+use Test::More tests => 57;
 use Try::Tiny;
 
 sub _eval {
@@ -130,8 +130,7 @@ sub Evil::new { bless { }, $_[0] }
     die "foo";
   } catch {
     pass("catch invoked");
-    local $TODO = "i don't think we can ever make this work sanely, maybe with SIG{__DIE__}" if "$]" < 5.014;
-    like($_, qr/foo/);
+    like($_, qr/foo/, 'error message is correct');
   };
 
   is( $@, "magic", '$@ untouched' );
@@ -160,4 +159,148 @@ sub Evil::new { bless { }, $_[0] }
 
   is_deeply( $caught, { prev => "bar\n" }, 'previous value of $@ available for capture' );
   is( $prev, "bar\n", 'previous value of $@ also available in catch block' );
+}
+
+{
+  local $@ = "magic";
+  local $_ = "other magic";
+
+  try {
+    local $@;
+    die "foo";
+  } catch {
+    pass("catch invoked");
+    like($_, qr/foo/, 'error message is correct even after $@ was localized');
+  };
+
+  is( $@, "magic", '$@ untouched' );
+  is( $_, "other magic", '$_ untouched' );
+}
+
+sub Evil2::DESTROY { eval { die "oh noes" } }
+sub Evil2::new { bless { }, $_[0] }
+
+{
+  local $@ = "magic";
+  local $_ = "other magic";
+
+  try {
+    my $object = Evil2->new;
+    die "foo";
+  } catch {
+    pass("catch invoked");
+    like($_, qr/foo/, 'error message is correct');
+  };
+
+  is( $@, "magic", '$@ untouched' );
+  is( $_, "other magic", '$_ untouched' );
+}
+
+sub Evil3::DESTROY { $@ = "oh noes" }
+sub Evil3::new { bless { }, $_[0] }
+
+{
+  local $@ = "magic";
+  local $_ = "other magic";
+
+  try {
+    my $object = Evil3->new;
+    die "foo";
+  } catch {
+    pass("catch invoked");
+    like($_, qr/foo/, 'error message is correct');
+  };
+
+  is( $@, "magic", '$@ untouched' );
+  is( $_, "other magic", '$_ untouched' );
+}
+
+sub Evil4::DESTROY { eval { "oh noes" } }
+sub Evil4::new { bless { }, $_[0] }
+
+{
+  local $@ = "magic";
+  local $_ = "other magic";
+
+  try {
+    for (Evil4->new) {
+      die "foo";
+    }
+  } catch {
+    pass("catch invoked");
+    like($_, qr/foo/, 'error message is correct');
+  };
+
+  is( $@, "magic", '$@ untouched' );
+  is( $_, "other magic", '$_ untouched' );
+}
+
+{
+  local $SIG{__DIE__} = sub { die "modified $_[0]" };
+
+  local $@ = "magic";
+  local $_ = "other magic";
+
+  try {
+    die "foo";
+  } catch {
+    pass("catch invoked");
+    like($_, qr/modified foo/, 'error message is correct even after $SIG{__DIE__} was used');
+  };
+
+  is( $@, "magic", '$@ untouched' );
+  is( $_, "other magic", '$_ untouched' );
+}
+
+{
+  local $SIG{__DIE__} = sub { die "modified $_[0]" };
+
+  local $@ = "magic";
+  local $_ = "other magic";
+
+  try {
+    local $@;
+    die "foo";
+  } catch {
+    pass("catch invoked");
+    like($_, qr/modified foo/, 'error message is correct even after $SIG{__DIE__} was used and $@ was localized');
+  };
+
+  is( $@, "magic", '$@ untouched' );
+  is( $_, "other magic", '$_ untouched' );
+}
+
+{
+  local $SIG{__DIE__} = sub { die bless { error => $_[0] }, 'Object' };
+
+  local $@ = "magic";
+  local $_ = "other magic";
+
+  try {
+    die "foo";
+  } catch {
+    pass("catch invoked");
+    isa_ok($_, 'Object', 'object exception is correct');
+  };
+
+  is( $@, "magic", '$@ untouched' );
+  is( $_, "other magic", '$_ untouched' );
+}
+
+{
+  local $SIG{__DIE__} = sub { die bless { error => $_[0] }, 'Object' };
+
+  local $@ = "magic";
+  local $_ = "other magic";
+
+  try {
+    local $@;
+    die "foo";
+  } catch {
+    pass("catch invoked");
+    isa_ok($_, 'Object', 'object exception is correct even after $@ was localized');
+  };
+
+  is( $@, "magic", '$@ untouched' );
+  is( $_, "other magic", '$_ untouched' );
 }
